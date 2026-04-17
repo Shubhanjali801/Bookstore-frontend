@@ -73,13 +73,13 @@ const Navbar = () => {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Chip
                 label={`Hi, ${user?.name?.split(" ")[0]}`}
-                size="small"
+                size="medium"
                 sx={{ color: "#9FE1CB", border: "1px solid #9FE1CB",
                   background: "transparent" }}
               />
               <IconButton color="inherit" onClick={handleLogout}
                 title="Logout">
-                <Logout fontSize="small" />
+                <Logout fontSize="medium" />
               </IconButton>
             </Box>
           ) : (

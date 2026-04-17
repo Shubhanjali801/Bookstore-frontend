@@ -58,7 +58,7 @@ const BookDetailPage = () => {
         <Button
           startIcon={<ArrowBack />}
           onClick={() => navigate("/books")}
-          size="small"
+          size="medium"
           sx={{ color: "#534AB7", fontWeight: 300 }}
         >
           Back to Books
@@ -136,7 +136,7 @@ const BookDetailPage = () => {
                 bgcolor: "#E8F5E9",
                 border: "1px solid #C8E6C9",
               }}>
-                <LocalOffer fontSize="small"
+                <LocalOffer fontSize="medium"
                   sx={{ color: "#1D9E75" }} />
                 <Typography variant="caption"
                   color="text.secondary"
@@ -156,7 +156,7 @@ const BookDetailPage = () => {
                 border: `1px solid ${book.stock > 0
                   ? "#D1C4E9" : "#FFCDD2"}`,
               }}>
-                <Inventory2 fontSize="small"
+                <Inventory2 fontSize="medium"
                   sx={{ color: book.stock > 0
                     ? "#534AB7" : "#E24B4A" }} />
                 <Typography variant="caption"
@@ -187,7 +187,7 @@ const BookDetailPage = () => {
                 <Chip
                   label={book.genre}
                   color="primary"
-                  size="small"
+                  size="medium"
                   icon={<MenuBook style={{ fontSize: 14 }} />}
                 />
                 <Typography variant="caption"

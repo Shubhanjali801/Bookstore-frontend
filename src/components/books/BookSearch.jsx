@@ -30,8 +30,8 @@ const BookSearch = ({ value, onChange, onClear }) => {
           ),
           endAdornment: value && (
             <InputAdornment position="end">
-              <IconButton size="small" onClick={onClear}>
-                <Clear fontSize="small" />
+              <IconButton size="medium" onClick={onClear}>
+                <Clear fontsize="medium" />
               </IconButton>
             </InputAdornment>
           ),
@@ -47,7 +47,7 @@ const BookSearch = ({ value, onChange, onClear }) => {
               <Chip
                 key={s}
                 label={s}
-                size="small"
+                size="medium"
                 variant="outlined"
                 clickable
                 onClick={() => onChange(s)}

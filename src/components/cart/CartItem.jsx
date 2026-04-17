@@ -49,14 +49,14 @@ const CartItem = ({ item }) => {
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
 
             <Box sx={{ display: "flex", alignItems: "center", border: "1px solid #ddd", borderRadius: 2 }}>
-              <IconButton size="small" onClick={handleDecrease}>
-                <Remove fontSize="small" />
+              <IconButton size="medium" onClick={handleDecrease}>
+                <Remove fontSize="medium" />
               </IconButton>
               <Typography sx={{ px: 2, fontWeight: "600" }}>
                 {item.quantity}
               </Typography>
-              <IconButton size="small" onClick={handleIncrease}>
-                <Add fontSize="small" />
+              <IconButton size="medium" onClick={handleIncrease}>
+                <Add fontSize="medium" />
               </IconButton>
             </Box>
 
@@ -64,8 +64,8 @@ const CartItem = ({ item }) => {
               ₹{item.price * item.quantity}
             </Typography>
 
-            <IconButton color="error" size="small" onClick={handleRemove}>
-              <Delete fontSize="small" />
+            <IconButton color="error" size="medium" onClick={handleRemove}>
+              <Delete fontSize="medium" />
             </IconButton>
 
           </Box>
