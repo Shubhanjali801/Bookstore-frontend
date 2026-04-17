@@ -50,13 +50,13 @@ const CartItem = ({ item }) => {
 
             <Box sx={{ display: "flex", alignItems: "center", border: "1px solid #ddd", borderRadius: 2 }}>
               <IconButton size="medium" onClick={handleDecrease}>
-                <Remove fontSize="medium" />
+                <Remove fontSize="small" />
               </IconButton>
               <Typography sx={{ px: 2, fontWeight: "600" }}>
                 {item.quantity}
               </Typography>
               <IconButton size="medium" onClick={handleIncrease}>
-                <Add fontSize="medium" />
+                <Add fontSize="small" />
               </IconButton>
             </Box>
 
@@ -65,7 +65,7 @@ const CartItem = ({ item }) => {
             </Typography>
 
             <IconButton color="error" size="medium" onClick={handleRemove}>
-              <Delete fontSize="medium" />
+              <Delete fontSize="small" />
             </IconButton>
 
           </Box>

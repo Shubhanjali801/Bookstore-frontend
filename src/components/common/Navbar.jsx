@@ -79,7 +79,7 @@ const Navbar = () => {
               />
               <IconButton color="inherit" onClick={handleLogout}
                 title="Logout">
-                <Logout fontSize="medium" />
+                <Logout fontSize="small" />
               </IconButton>
             </Box>
           ) : (

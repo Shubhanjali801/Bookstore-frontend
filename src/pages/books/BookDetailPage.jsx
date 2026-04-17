@@ -136,7 +136,7 @@ const BookDetailPage = () => {
                 bgcolor: "#E8F5E9",
                 border: "1px solid #C8E6C9",
               }}>
-                <LocalOffer fontSize="medium"
+                <LocalOffer fontSize="small"
                   sx={{ color: "#1D9E75" }} />
                 <Typography variant="caption"
                   color="text.secondary"
@@ -156,7 +156,7 @@ const BookDetailPage = () => {
                 border: `1px solid ${book.stock > 0
                   ? "#D1C4E9" : "#FFCDD2"}`,
               }}>
-                <Inventory2 fontSize="medium"
+                <Inventory2 fontSize="small"
                   sx={{ color: book.stock > 0
                     ? "#534AB7" : "#E24B4A" }} />
                 <Typography variant="caption"

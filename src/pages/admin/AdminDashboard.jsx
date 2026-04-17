@@ -104,7 +104,7 @@ const AdminDashboard = () => {
           </Typography>
         </Box>
         <Chip
-          icon={<TrendingUp fontSize="medium" />}
+          icon={<TrendingUp fontSize="small" />}
           label="Live Data"
           color="success"
           size="medium"

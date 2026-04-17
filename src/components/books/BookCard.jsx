@@ -263,7 +263,7 @@ const BookCard = ({ book }) => {
           variant="contained"
           size="medium"
           fullWidth
-          startIcon={<ShoppingCart fontSize="medium" />}
+          startIcon={<ShoppingCart fontSize="small" />}
           disabled={book.stock === 0}
           onClick={() => dispatch(addToCart(book))}
           sx={{
@@ -287,7 +287,7 @@ const BookCard = ({ book }) => {
             flexShrink: 0,
           }}
         >
-          <Visibility fontSize="medium" />
+          <Visibility fontSize="small" />
         </Button>
       </CardActions>
 

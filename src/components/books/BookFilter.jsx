@@ -22,7 +22,7 @@ const BookFilter = ({ selectedGenre, onGenreChange,
 
       {/* Header */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-        <FilterList color="primary" fontSize="medium" />
+        <FilterList color="primary" fontSize="small" />
         <Typography variant="subtitle1" fontWeight="bold">
           Filters
         </Typography>

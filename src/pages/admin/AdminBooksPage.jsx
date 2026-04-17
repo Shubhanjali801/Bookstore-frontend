@@ -121,7 +121,7 @@ const AdminBooksPage = () => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Search fontSize="medium" />
+                <Search fontSize="small" />
               </InputAdornment>
             ),
             sx: { borderRadius: 2, bgcolor: "#fff" }
@@ -241,7 +241,7 @@ const AdminBooksPage = () => {
                             "&:hover": { bgcolor: "#D1C4E9" },
                           }}
                         >
-                          <Edit fontSize="medium" />
+                          <Edit fontSize="small" />
                         </IconButton>
                         <IconButton
                           size="medium"
@@ -253,7 +253,7 @@ const AdminBooksPage = () => {
                             "&:hover": { bgcolor: "#FFCDD2" },
                           }}
                         >
-                          <Delete fontSize="medium" />
+                          <Delete fontSize="small" />
                         </IconButton>
                       </Box>
                     </TableCell>

@@ -219,7 +219,7 @@ const CartPage = () => {
                       }))}
                       sx={{ borderRadius: 0, px: 1,
                         "&:hover": { bgcolor: "#EDE7F6" } }}>
-                      <Remove fontSize="medium" />
+                      <Remove fontSize="small" />
                     </IconButton>
                     <Typography sx={{
                       px: 2, fontWeight: "800",
@@ -236,7 +236,7 @@ const CartPage = () => {
                       }))}
                       sx={{ borderRadius: 0, px: 1,
                         "&:hover": { bgcolor: "#EDE7F6" } }}>
-                      <Add fontSize="medium" />
+                      <Add fontSize="small" />
                     </IconButton>
                   </Box>
                 </Box>
@@ -267,7 +267,7 @@ const CartPage = () => {
                     transition: "all 0.2s",
                   }}
                 >
-                  <Delete fontSize="medium" />
+                  <Delete fontSize="small" />
                 </IconButton>
 
               </Paper>
