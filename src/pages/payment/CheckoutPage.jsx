@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"  // ← add useRef
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
@@ -24,14 +24,12 @@ import {
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
 
-// ── Validation ─────────────────────────────────────────────────
 const schema = yup.object({
   shippingAddress: yup.string()
     .required("Shipping address is required")
     .min(10, "Please enter a complete address"),
 })
 
-// ── Card Element styling ───────────────────────────────────────
 const CARD_STYLE = {
   style: {
     base: {
@@ -45,33 +43,37 @@ const CARD_STYLE = {
 }
 
 // ── Payment Form (inner) ───────────────────────────────────────
-const PaymentForm = ({ shippingAddress }) => {
+const PaymentForm = ({ shippingAddress, items }) => {
   const stripe = useStripe()
   const elements = useElements()
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  const { items } = useSelector((state) => state.cart)
   const { createdOrder } = useSelector((state) => state.orders)
   const { clientSecret, isLoading } = useSelector((state) => state.payment)
   const [isPaying, setIsPaying] = useState(false)
   const [cardReady, setCardReady] = useState(false)
 
+  // ── Prevent duplicate order creation ──────────────────────
+  const orderCreated = useRef(false)
+
   useEffect(() => {
-    if (items.length > 0 && shippingAddress) {
+    if (items.length > 0 && shippingAddress && !orderCreated.current) {
+      orderCreated.current = true   // ← mark BEFORE dispatch
       const orderItems = items.map((item) => ({
         bookId: item._id,
         quantity: item.quantity,
       }))
       dispatch(createOrder({ items: orderItems, shippingAddress }))
     }
-  }, [items, shippingAddress, dispatch])
+  }, [])   // ← empty array — runs ONCE on mount only
 
   useEffect(() => {
     if (createdOrder?._id) {
       dispatch(createPaymentIntent(createdOrder._id))
     }
-  }, [createdOrder, dispatch])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createdOrder?._id])   // ← only when _id changes
 
   const handlePay = async (e) => {
     e.preventDefault()
@@ -102,12 +104,11 @@ const PaymentForm = ({ shippingAddress }) => {
   return (
     <Box component="form" onSubmit={handlePay}>
 
-      {/* Card input box */}
+      {/* Card input */}
       <Box sx={{
         border: "2px solid",
         borderColor: cardReady ? "primary.main" : "#e0e0e0",
-        borderRadius: 2,
-        p: 2.5,
+        borderRadius: 2, p: 2.5,
         bgcolor: "#fafafa",
         transition: "border-color 0.2s",
         mb: 2,
@@ -131,7 +132,7 @@ const PaymentForm = ({ shippingAddress }) => {
         </Typography>
       </Box>
 
-      {/* Loading state */}
+      {/* Loading */}
       {isLoading && !clientSecret && (
         <Box sx={{
           display: "flex", alignItems: "center",
@@ -154,15 +155,11 @@ const PaymentForm = ({ shippingAddress }) => {
           ? <CircularProgress size={20} color="inherit" />
           : <Lock />}
         sx={{
-          borderRadius: 2,
-          py: 1.8,
-          fontSize: "15px",
-          fontWeight: 700,
-          background:
-            "linear-gradient(135deg, #1D9E75 0%, #27AE7F 100%)",
+          borderRadius: 2, py: 1.8,
+          fontSize: "15px", fontWeight: 700,
+          background: "linear-gradient(135deg, #1D9E75 0%, #27AE7F 100%)",
           "&:hover": {
-            background:
-              "linear-gradient(135deg, #16805E 0%, #1D9E75 100%)",
+            background: "linear-gradient(135deg, #16805E 0%, #1D9E75 100%)",
           },
           "&:disabled": { opacity: 0.6 },
         }}
@@ -187,13 +184,14 @@ const CheckoutPage = () => {
 
   const [activeStep, setActiveStep] = useState(0)
   const [shippingAddress, setShippingAddress] = useState("")
+
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
-    mode: "onSubmit",    // ← add this line
+    mode: "onSubmit",
   })
 
   useEffect(() => {
-    if (items.length === 0) navigate("/order-success")// navigate("/cart")
+    if (items.length === 0) navigate("/cart")  // ← fixed
   }, [items, navigate])
 
   const onShippingSubmit = (data) => {
@@ -204,7 +202,7 @@ const CheckoutPage = () => {
   return (
     <Box sx={{ bgcolor: "#f0f2f5", minHeight: "100vh", width: "100%" }}>
 
-      {/* ── Dark Header ── */}
+      {/* ── Header ── */}
       <Box sx={{
         bgcolor: "#fff",
         borderBottom: "1px solid #e8e8e8",
@@ -224,7 +222,7 @@ const CheckoutPage = () => {
         </Box>
         <Button
           startIcon={<ArrowBack />}
-          onClick={() => navigate("/order-success")} // navigate("/cart")
+          onClick={() => navigate("/cart")}  // ← fixed
           variant="outlined"
           size="medium"
           sx={{ borderRadius: 2 }}
@@ -269,11 +267,10 @@ const CheckoutPage = () => {
             bgcolor: "#fff",
           }}>
 
-            {/* ── Step 1: Shipping ── */}
+            {/* Step 1 — Shipping */}
             {activeStep === 0 && (
               <Box component="form"
                 onSubmit={handleSubmit(onShippingSubmit)}>
-
                 <Box sx={{
                   display: "flex", alignItems: "center",
                   gap: 1.5, mb: 3,
@@ -288,8 +285,7 @@ const CheckoutPage = () => {
                     <Typography variant="h6" fontWeight="700">
                       Shipping Address
                     </Typography>
-                    <Typography variant="caption"
-                      color="text.secondary">
+                    <Typography variant="caption" color="text.secondary">
                       Where should we deliver your books?
                     </Typography>
                   </Box>
@@ -305,27 +301,20 @@ const CheckoutPage = () => {
                   helperText={errors.shippingAddress?.message ||
                     "Include house no, street, city, state and PIN code"}
                   placeholder={
-                    "Example:\n" +
-                    "12 MG Road, Sector 4\n" +
-                    "Lucknow, Uttar Pradesh\n" +
-                    "PIN: 226001"
+                    "Example:\n12 MG Road, Sector 4\n" +
+                    "Lucknow, Uttar Pradesh\nPIN: 226001"
                   }
-                  sx={{
-                    mb: 3,
-                    "& .MuiOutlinedInput-root": { borderRadius: 2 },
-                  }}
+                  sx={{ mb: 3,
+                    "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
                 />
 
-                {/* Saved addresses hint */}
                 <Box sx={{
                   bgcolor: "#F3F0FF", borderRadius: 2,
                   px: 2, py: 1.5, mb: 3,
-                  display: "flex", gap: 1, alignItems: "flex-start",
                 }}>
                   <Typography variant="caption" color="primary.main">
                     💡 Make sure your address is complete and correct.
-                    Our delivery partner will use this address to ship your
-                    books.
+                    Our delivery partner will use this address to ship your books.
                   </Typography>
                 </Box>
 
@@ -346,7 +335,7 @@ const CheckoutPage = () => {
               </Box>
             )}
 
-            {/* ── Step 2: Payment ── */}
+            {/* Step 2 — Payment */}
             {activeStep === 1 && (
               <Box>
                 <Box sx={{
@@ -363,14 +352,13 @@ const CheckoutPage = () => {
                     <Typography variant="h6" fontWeight="700">
                       Payment Details
                     </Typography>
-                    <Typography variant="caption"
-                      color="text.secondary">
+                    <Typography variant="caption" color="text.secondary">
                       Complete your purchase securely
                     </Typography>
                   </Box>
                 </Box>
 
-                {/* Shipping address preview */}
+                {/* Address preview */}
                 <Box sx={{
                   bgcolor: "#f5f5f5",
                   borderRadius: 2, px: 2, py: 1.5,
@@ -383,8 +371,8 @@ const CheckoutPage = () => {
                       color="text.secondary" fontWeight="600">
                       DELIVERING TO
                     </Typography>
-                    <Typography variant="body2" color="#1a1a2e"
-                      fontWeight="500">
+                    <Typography variant="body2"
+                      color="#1a1a2e" fontWeight="500">
                       📍 {shippingAddress}
                     </Typography>
                   </Box>
@@ -395,10 +383,13 @@ const CheckoutPage = () => {
                   </Button>
                 </Box>
 
+                {/* ← Pass items as prop to PaymentForm */}
                 <Elements stripe={stripePromise}>
-                  <PaymentForm shippingAddress={shippingAddress} />
+                  <PaymentForm
+                    shippingAddress={shippingAddress}
+                    items={items}
+                  />
                 </Elements>
-
               </Box>
             )}
           </Paper>
@@ -416,41 +407,28 @@ const CheckoutPage = () => {
             overflow: "hidden",
             border: "1px solid #e8e8e8",
           }}>
-
-            {/* Summary header */}
-            <Box sx={{
-              bgcolor: "#1a1a2e", px: 3, py: 2.5,
-            }}>
+            <Box sx={{ bgcolor: "#1a1a2e", px: 3, py: 2.5 }}>
               <Typography variant="h6" fontWeight="bold" color="#fff">
                 Order Summary
               </Typography>
-              <Typography variant="caption"
-                sx={{ color: "#9FE1CB" }}>
+              <Typography variant="caption" sx={{ color: "#9FE1CB" }}>
                 {totalItems} items
               </Typography>
             </Box>
 
             <Box sx={{ p: 3 }}>
-
-              {/* Items */}
               <Stack spacing={2} mb={2}>
                 {items.map((item) => (
                   <Box key={item._id} sx={{
-                    display: "flex",
-                    gap: 1.5,
-                    alignItems: "center",
+                    display: "flex", gap: 1.5, alignItems: "center",
                   }}>
-                    <Box
-                      component="img"
+                    <Box component="img"
                       src={item.imageUrl ||
                         "https://via.placeholder.com/40x55"}
                       alt={item.title}
                       sx={{
-                        width: 40, height: 55,
-                        objectFit: "cover",
-                        borderRadius: 1,
-                        flexShrink: 0,
-                        boxShadow: 1,
+                        width: 40, height: 55, objectFit: "cover",
+                        borderRadius: 1, flexShrink: 0, boxShadow: 1,
                       }}
                     />
                     <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -458,8 +436,7 @@ const CheckoutPage = () => {
                         fontWeight="600" noWrap>
                         {item.title}
                       </Typography>
-                      <Typography variant="caption"
-                        color="text.secondary">
+                      <Typography variant="caption" color="text.secondary">
                         ₹{item.price} × {item.quantity}
                       </Typography>
                     </Box>
@@ -472,10 +449,8 @@ const CheckoutPage = () => {
 
               <Divider sx={{ mb: 2 }} />
 
-              {/* Charges */}
               <Box sx={{
-                display: "flex", justifyContent: "space-between",
-                mb: 1,
+                display: "flex", justifyContent: "space-between", mb: 1,
               }}>
                 <Typography variant="body2" color="text.secondary">
                   Subtotal
@@ -485,34 +460,24 @@ const CheckoutPage = () => {
                 </Typography>
               </Box>
               <Box sx={{
-                display: "flex", justifyContent: "space-between",
-                mb: 2,
+                display: "flex", justifyContent: "space-between", mb: 2,
               }}>
                 <Typography variant="body2" color="text.secondary">
-                  Delivery
+                  Delivery Charges
                 </Typography>
-                <Chip label="FREE" size="medium" color="success"
-                  sx={{
-                    height: 20, fontSize: "11px",
-                    fontWeight: 700
-                  }} />
+                <Chip label="FREE" size="small" color="success"
+                  sx={{ height: 20, fontSize: "11px", fontWeight: 700 }} />
               </Box>
 
               <Divider sx={{ mb: 2 }} />
 
-              {/* Total */}
               <Box sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
+                display: "flex", justifyContent: "space-between",
+                alignItems: "center", mb: 2,
               }}>
                 <Box>
-                  <Typography fontWeight="800" variant="h6">
-                    Total
-                  </Typography>
-                  <Typography variant="caption"
-                    color="text.secondary">
+                  <Typography fontWeight="800" variant="h6">Total</Typography>
+                  <Typography variant="caption" color="text.secondary">
                     Incl. of all taxes
                   </Typography>
                 </Box>
@@ -522,42 +487,34 @@ const CheckoutPage = () => {
                 </Typography>
               </Box>
 
-              {/* Step indicator */}
               <Box sx={{
                 bgcolor: activeStep === 1 ? "#E8F5E9" : "#F3F0FF",
-                borderRadius: 2, px: 2, py: 1.5,
-                textAlign: "center",
+                borderRadius: 2, px: 2, py: 1.5, textAlign: "center",
               }}>
                 <Typography variant="caption"
-                  color={activeStep === 1
-                    ? "success.main" : "primary.main"}
+                  color={activeStep === 1 ? "success.main" : "primary.main"}
                   fontWeight="600">
                   {activeStep === 0
                     ? "📍 Step 1: Enter shipping address"
                     : "💳 Step 2: Complete payment"}
                 </Typography>
               </Box>
-              
             </Box>
           </Paper>
 
-          {/* Payment methods */}
           <Paper elevation={0} sx={{
             mt: 2, p: 2, borderRadius: 3,
-            border: "1px solid #e8e8e8",
-            textAlign: "center",
+            border: "1px solid #e8e8e8", textAlign: "center",
           }}>
             <Typography variant="caption"
               color="text.secondary" display="block" mb={1}>
               Accepted payment methods
             </Typography>
             <Stack direction="row" spacing={1} justifyContent="center">
-              {["💳 Visa", "💳 Mastercard", "💳 RuPay", "🏦 UPI"]
-                .map((p) => (
-                  <Chip key={p} label={p} size="medium"
-                    variant="outlined"
-                    sx={{ fontSize: "11px" }} />
-                ))}
+              {["💳 Visa", "💳 Mastercard", "💳 RuPay", "🏦 UPI"].map((p) => (
+                <Chip key={p} label={p} size="small"
+                  variant="outlined" sx={{ fontSize: "11px" }} />
+              ))}
             </Stack>
           </Paper>
         </Box>
@@ -567,3 +524,4 @@ const CheckoutPage = () => {
 }
 
 export default CheckoutPage
+
